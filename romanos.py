@@ -13,10 +13,20 @@ digitos_romanos = {
 def a_numero(cadena):
     acumulador = 0
     valor_ant = 0
+    cuenta_repeticiones = 0
+    cuenta_resta = 0
     
     for caracter in cadena:
-        valor = digitos_romanos[caracter]
-        if valor > valor_ant:
+        valor = digitos_romanos.get(caracter)
+        if not valor:
+            raise ValueError("El mío")
+        
+        if valor_ant > 0 and valor > valor_ant:
+            if cuenta_resta > 0:
+                raise ValueError("No se pueden hacer restas consecutivas")
+            if cuenta_repeticiones > 0:
+                raise ValueError("No se puede hacer restas dentro de repeticiones")
+        
             if valor_ant in (5, 50, 500):
                 raise ValueError("No se pueden restar V, L, D")
             
@@ -24,9 +34,21 @@ def a_numero(cadena):
                 raise ValueError("No se admiten restas entre digitos 10 veces mayor")
             
             acumulador = acumulador - valor_ant
-            acumulador = acumulador + valor - valor_ant
+            acumulador = acumulador + valor - valor_ant3
+            cuenta_resta += 1
         else:
             acumulador += valor
+            cuenta_resta = 0
+            
+        if valor == valor_ant:
+            if valor in (5, 50, 500):
+                raise ValueError('No se puede repetir V, L o D')   
+            cuenta_repeticiones += 1
+            if cuenta_repeticiones ==3:
+                raise ValueError("Demasiadas repeticiones de {}".format(caracter))
+        
+        else:
+            cuenta_repeticiones = 0
         
         valor_ant = valor
     
@@ -42,12 +64,11 @@ def validar(n):
 def a_romano(n):
     validar(n)
     c="{:04d}".format(n)
+    
     unidades = int(c[-1])
     decenas = int(c[-2])
     centenas = int(c[-3])
     millares = int (c[-4])
-        
-    componetes = (millares, centenas, decenas, unidades)
     
     return simbolos['millares'][millares] + simbolos['centenas'][centenas] + simbolos['decenas'][decenas] + simbolos['unidades'][unidades]
 
